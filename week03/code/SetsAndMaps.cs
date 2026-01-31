@@ -21,34 +21,40 @@ public static class SetsAndMaps
     /// </summary>
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
-    {
-        // TODO Problem 1 - ADD YOUR CODE HERE
+    {    // HashSet to store words we've seen for O(1) lookups
         var seen = new HashSet<string>();
+        // List to store the symmetric pairs we find
         var pairs = new List<string>();
 
         foreach (var word in words)
-        {
+        {    // Special case: if both characters are the same (e.g., 'aa'),
+            // skip as it cannot form a symmetric pair with another word
+            // (and there are no duplicates according to the problem statement)
             if (word[0] == word[1])
-                continue;
-            
-            string reversed = word[1].ToString() + word[0].ToString();
-
-            if (seen.Contains(reversed) && word.CompareTo(reversed) < 0)
             {
-                pairs.Add($"{word} & {reversed}");
+                continue;
             }
-
-            seen.Add(word);
+            // Create the reversed version of the word (e.g., "am" -> "ma")
+            string reversed = word[1].ToString() + word[0].ToString();
+            // Check if we've already seen the reversed version
+            // This ensures we only capture each symmetric pair once
+            if (seen.Contains(reversed))
+            {
+                pairs.Add($"{word} & {reversed}"); // Add the pair in the requested format, the order within the pair doesn't matter, either "am & ma" or "ma & am" is fine
+            }
+            else
+            {
+                seen.Add(word); // Add current word to the set for future lookups
+            }
         }
-
-        return pairs.ToArray();
+        return pairs.ToArray(); // Convert the list to an array and return
+            
     }
-
     /// <summary>
     /// Read a census file and summarize the degrees (education)
     /// earned by those contained in the file.  The summary
     /// should be stored in a dictionary where the key is the
-    /// degree earned and the value is the number of people that 
+    /// degree earned and the value is the number of people that
     /// have earned that degree.  The degree information is in
     /// the 4th column of the file.  There is no header row in the
     /// file.
