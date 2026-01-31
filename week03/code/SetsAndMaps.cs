@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 public static class SetsAndMaps
@@ -22,7 +23,25 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var seen = new HashSet<string>();
+        var pairs = new List<string>();
+
+        foreach (var word in words)
+        {
+            if (word[0] == word[1])
+                continue;
+            
+            string reversed = word[1].ToString() + word[0].ToString();
+
+            if (seen.Contains(reversed) && word.CompareTo(reversed) < 0)
+            {
+                pairs.Add($"{word} & {reversed}");
+            }
+
+            seen.Add(word);
+        }
+
+        return pairs.ToArray();
     }
 
     /// <summary>
@@ -42,7 +61,17 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+
+            if (fields.Length < 4)
+                continue;
+            
+            string degree = fields[3].Trim();
+
+            if (string.IsNullOrEmpty(degree))
+                continue;
+
+            degrees[degree] = degrees.GetValueOrDefault(degree, 0) + 1;
+            
         }
 
         return degrees;
@@ -66,8 +95,36 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+         // eliminate spaces and convert to lowe case 
+        string cleanWord1 = word1.Replace(" ", "").ToLower();
+        string cleanWord2 = word2.Replace(" ", "").ToLower();
+
+        // verify length (if lengths are different can't be anagrams)
+        if (cleanWord1.Length != cleanWord2.Length)
+            return false;
+        // create a dictionary to count frequency of letters in word1
+        Dictionary<char, int> letterCount = new Dictionary<char, int>();
+
+        // count the letters in the first word
+        foreach (char c in cleanWord1)
+        {
+            if (letterCount.ContainsKey(c))
+                letterCount[c]++;
+            else
+                letterCount[c] = 1;
+        }
+
+        // if the letter is not in the dictionary or letter counter is 0, word2 has an extra letter and returns false
+        foreach (char c in cleanWord2)
+        {
+            if (!letterCount.ContainsKey(c) || letterCount[c] == 0)
+                return false; // 
+            
+            // decrease letter count
+            letterCount[c]--;
+        }
+
+            return true;
     }
 
     /// <summary>
