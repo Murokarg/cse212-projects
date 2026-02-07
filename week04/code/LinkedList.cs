@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 
 public class LinkedList : IEnumerable<int>
 {
@@ -31,8 +32,20 @@ public class LinkedList : IEnumerable<int>
     /// Insert a new node at the back (i.e. the tail) of the linked list.
     /// </summary>
     public void InsertTail(int value)
-    {
-        // TODO Problem 1
+    {   // Create a new node
+        Node newNode = new(value);
+        // Verify if the list is empty
+        if (_head is null)
+        {   // Case 1: Empty list -> the new node is head and tail
+            _head = newNode;
+            _tail = newNode;
+        }
+        else
+        {   // Case 2: List is NOT empty
+            _tail!.Next = newNode; // Connect the actual tail with the new node
+            newNode.Prev = _tail;  // Connect the new node with the actual tail
+            _tail = newNode;       // Update tail to the new node
+        }
     }
 
 
@@ -63,8 +76,27 @@ public class LinkedList : IEnumerable<int>
     /// Remove the last node (i.e. the tail) of the linked list.
     /// </summary>
     public void RemoveTail()
-    {
-        // TODO Problem 2
+    {    // Case 1: Empty list -> logic error
+        if (_head is null)
+        {
+            throw new InvalidOperationException("Cannot remove from an empty list.");
+        }
+        // Case 2: List with just one element
+        // (when _head == _tail, it means there is exactly 1 node)
+        if (_head == _tail)
+        {
+            _head = null;
+            _tail = null;
+        }
+        // Case 3: List with multiple elements
+        else
+        {   // Step A: Access the second to last node (the one that's going to be the new tail)
+            Node newTail = _tail!.Prev!;
+            // Step B: Disconnect the last node
+            newTail.Next = null; // Break the bound towards the node that is being eliminated
+            // Step C: Update _tail to the second to last node
+            _tail = newTail;
+        }
     }
 
     /// <summary>
@@ -107,16 +139,66 @@ public class LinkedList : IEnumerable<int>
     /// Remove the first node that contains 'value'.
     /// </summary>
     public void Remove(int value)
-    {
-        // TODO Problem 3
+    {   // Step 1: Search for the node that contains 'value'
+        Node? curr = _head;
+        while (curr is not null)
+        {
+            if (curr.Data == value)
+            {   // Found, now remove this node according to its position
+                // Case A: Its the ONLY node in the list
+                if(_head == _tail)
+                {
+                    _head = null;
+                    _tail = null;
+                }
+                // Case B: Its the HEAD (but there are mode nodes)
+                else if (curr == _head)
+                {
+                    _head = _head.Next; // Move head to the next node
+                    _head!.Prev = null; // Breaks the link pointing to the removed node
+                }
+                // Case C: Its the TAIL (but there are more nodes)
+                else if (curr == _tail)
+                {
+                    _tail = _tail.Prev; // Move tail to the previous node
+                    _tail!.Next = null; // Break the link pointing to the removed node 
+                }
+                // Case D: Its in the MIDDLE of the list
+                else
+                {   // Reconnect the previous node with the next one
+                    curr.Prev!.Next = curr.Next; // [previous].Next -> [next]
+                    curr.Next!.Prev = curr.Prev; // [next].Prev -> [previous]
+                }
+                // Exits after removing the FIRST occurrence
+                return;
+            }
+            // Continues search
+            curr = curr.Next;
+        }
+
     }
 
     /// <summary>
     /// Search for all instances of 'oldValue' and replace the value to 'newValue'.
     /// </summary>
     public void Replace(int oldValue, int newValue)
-    {
-        // TODO Problem 4
+    {   // Step 1: Start from the HEAD (fist node in the list)
+        Node? curr = _head; // Temporary pointer that'll us to iterate the list
+                           // curr = "current node"
+
+        // Step 2: Iterate the list without getting to the end
+        while (curr is not null) // Halt condition: when curr is null, it means we have reach the end of the list
+        {
+            // Step 3: Check if the actual node contains the value to replace
+            if (curr.Data == oldValue) // Access the 'Data' property of the actual node and compares it to 'oldValue'
+            {
+                // Step 4: It matches = replace the value
+                curr.Data = newValue; // Modifies ONLY the stored data
+            }
+            //Step 5: Move to the next node (avoids getting stuck in an infinite loop)
+            curr = curr.Next;
+        }
+
     }
 
     /// <summary>
